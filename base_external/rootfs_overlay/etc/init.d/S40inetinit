@@ -1,0 +1,43 @@
+#!/bin/sh
+# /etc/init.d/S40inetinit - Fully enhanced network startup script for Buildroot with diagnostics, dynamic driver config, and fallback
+
+LOGFILE=/var/log/netboot.log
+mkdir -p /run/network /var/log
+
+# Load optional driver config if available
+[ -f /etc/network/env.conf ] && . /etc/network/env.conf
+
+DRIVER=${WIFI_DRIVER:-brcmfmac}
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> $LOGFILE
+}
+
+log "Starting S40inetinit..."
+
+# Load Wi-Fi kernel module
+modprobe $DRIVER 2>/dev/null || log "WARN: Module $DRIVER not found"
+
+# Try Ethernet first
+eth_link=$(cat /sys/class/net/eth0/carrier 2>/dev/null)
+if [ "$eth_link" = "1" ]; then
+    log "INFO: Ethernet link detected. Attempting to bring up eth0..."
+    ifup eth0 || log "ERROR: ifup eth0 failed"
+else
+    log "INFO: No Ethernet. Attempting Wi-Fi (wlan0)..."
+    ifup wlan0 || {
+        log "WARN: ifup wlan0 failed. Using manual WPA fallback."
+        pidof wpa_supplicant || wpa_supplicant -B -Dnl80211 -iwlan0 -c /etc/wpa_supplicant.conf
+        udhcpc -i wlan0
+    }
+fi
+
+# Log assigned IPs
+ip_eth=$(ip -4 addr show eth0 | awk '/inet/ {print $2}')
+ip_wlan=$(ip -4 addr show wlan0 | awk '/inet/ {print $2}')
+
+[ -n "$ip_eth" ] && log "eth0 IP: $ip_eth"
+[ -n "$ip_wlan" ] && log "wlan0 IP: $ip_wlan"
+
+log "S40inetinit completed."
+exit 0
