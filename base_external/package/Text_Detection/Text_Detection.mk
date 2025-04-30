@@ -1,19 +1,19 @@
 ##############################################################
 #
-# AESD-ASSIGNMENTS
+# TEXT_DETECTION
 #
 ##############################################################
 
 # Reference your Assignment 3 repository
-AESD_ASSIGNMENTS_VERSION =  ad1abbbee22fb3e52fb158eba7fcbb3a92956d16 
+TEXT_DETECTION_VERSION =  ad1abbbee22fb3e52fb158eba7fcbb3a92956d16 
 
 # Use SSH for git access
-AESD_ASSIGNMENTS_SITE = git@github.com:cu-ecen-aeld/assignments-3-and-later-Sriramz2002.git
-AESD_ASSIGNMENTS_SITE_METHOD = git
-AESD_ASSIGNMENTS_GIT_SUBMODULES = YES
+TEXT_DETECTION_SITE = git@github.com:cu-ecen-aeld/assignments-3-and-later-Sriramz2002.git
+TEXT_DETECTION_SITE_METHOD = git
+TEXT_DETECTION_GIT_SUBMODULES = YES
 
 
-define AESD_ASSIGNMENTS_BUILD_CMDS
+define TEXT_DETECTION_BUILD_CMDS
 	$(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/finder-app all
 
 
@@ -22,7 +22,7 @@ endef
 
 
 
-define AESD_ASSIGNMENTS_INSTALL_TARGET_CMDS
+define TEXT_DETECTION_INSTALL_TARGET_CMDS
 
 	$(INSTALL) -m 0755 $(@D)/finder-app/finder-test.sh $(TARGET_DIR)/usr/bin
 	$(INSTALL) -m 0755 $(@D)/finder-app/finder.sh $(TARGET_DIR)/usr/bin
